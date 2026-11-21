@@ -1,41 +1,53 @@
 {% set name = "map_parallel" %}
-{% set version = "0.2.0" %}
-
+{% set version = "0.3.0" %}
 
 package:
   name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/map-parallel-{{ version }}.tar.gz
-  sha256: 9bcf4390c4e508f6e028217164f92cd1ccde73f33ea412064cf9dbd115491ec2
+  url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/map_parallel-{{ version }}.tar.gz
+  sha256: 59992ec4ee5e7d9c973a7b13400ab8339c6391810fd32bf45e9aa32d724710b1
 
 build:
-  number: 1
+  number: 0
   noarch: python
-  script: {{ PYTHON }} -m pip install . -vv
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
 
 requirements:
   host:
     - pip
     - python {{ python_min }}
+    - uv-build >=0.9,<0.14
   run:
     - python >={{ python_min }}
+  run_constrained:
+    - distributed >=2023.1
+    - mpi4py >=3.1
 
 test:
+  source_files:
+    - tests
   imports:
     - map_parallel
-  commands:
-    - pip check
   requires:
     - pip
+    - pytest
     - python {{ python_min }}
+  commands:
+    - pip check
+    - pytest tests/test_core.py -v
 
 about:
   home: https://github.com/ickc/python-map_parallel
   summary: A drop-in replacement of map/starmap but in parallel with different backends.
+  description: |
+    map_parallel runs map and starmap in parallel, on a backend of choice:
+    processes, threads, subinterpreters (Python 3.14+), dask or MPI.
   license: BSD-3-Clause
   license_file: LICENSE
+  doc_url: https://ickc.github.io/python-map_parallel
+  dev_url: https://github.com/ickc/python-map_parallel
 
 extra:
   recipe-maintainers:
